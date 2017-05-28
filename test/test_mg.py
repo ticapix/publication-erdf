@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import os
 import smtplib, email
-import requests
 from ConfigParser import ConfigParser
 import time
 import unittest
@@ -11,10 +10,19 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 import mimetypes
 
+os.sys.path.append(os.path.realpath(os.environ['PACKAGES_DIR']))
+
+import requests
 from postbin import PostBin
 
-def pretty(obj):
-    return json.dumps(obj, indent=4, sort_keys=True)
+def saveDump(obj):
+    stub_path = os.environ['STUB_DIR']
+    files = os.listdir(stub_path)
+    counter = 0
+    if len(files):
+        latest = max(files)
+        counter = int(latest.split('-', 1)[1].split('.')[0]) + 1
+    json.dump(obj, open(os.path.join(stub_path, 'message-{:0>2}.json'.format(counter)), 'wb'))
 
 class BaseTest(unittest.TestCase):
     @classmethod
@@ -77,12 +85,12 @@ class ForwardEmailAndStoreTest(BaseTest):
             time.sleep(1)
         return None
 
-    @unittest.skip
+    # @unittest.skip
     def test_no_arg(self):
         res = self.forwardAndRetrieve('email erdf 01 les forges.txt',
             'bnpr-pub@{domain}'.format(domain=self.config['domain']))
         self.assertIsNotNone(res)
-        print(res['id'], pretty(json.loads(res['params'])))
+        saveDump(json.loads(res['params']))
 
     # @unittest.skip
     def test_one_arg(self):
@@ -90,14 +98,14 @@ class ForwardEmailAndStoreTest(BaseTest):
             'bnpr-pub+cap=400@{domain}'.format(domain=self.config['domain']))
         self.assertIsNotNone(res)
         print(res['id'])
-        print pretty(json.loads(res['params']))
+        saveDump(json.loads(res['params']))
 
-    @unittest.skip
+    # @unittest.skip
     def test_many_args(self):
         res = self.forwardAndRetrieve('email erdf 02 m2m.txt',
             'bnpr-pub+cap=400|graph=0|csv=0@{domain}'.format(domain=self.config['domain']))
         self.assertIsNotNone(res)
-        print(res['id'], pretty(json.loads(res['params'])))
+        saveDump(json.loads(res['params']))
 
 class SendEmailAndStoreTest(BaseTest):
     def createMessage(self, filenames, email_body, email_to):
@@ -133,26 +141,26 @@ class SendEmailAndStoreTest(BaseTest):
             time.sleep(1)
         return None
 
-    @unittest.skip
+    # @unittest.skip
     def test_no_attachment_no_arg(self):
         res = self.sendAndRetrieve([], 'body 01.txt',
             'bnpr-pub@{domain}'.format(domain=self.config['domain']))
         self.assertIsNotNone(res)
-        print(res['id'], pretty(json.loads(res['params'])))
+        saveDump(json.loads(res['params']))
 
+    # @unittest.skip
     def test_one_attachment_many_args(self):
         res = self.sendAndRetrieve(['extract01.zip'], 'body 01.txt',
             'bnpr-pub+cap=400|graph=0|csv=0@{domain}'.format(domain=self.config['domain']))
         self.assertIsNotNone(res)
-        print(res['id'])
-        print pretty(json.loads(res['params']))
+        saveDump(json.loads(res['params']))
 
-    @unittest.skip
+    # @unittest.skip
     def test_many_attachments_no_arg(self):
         res = self.sendAndRetrieve(['extract01.zip', 'extract02.zip'], 'body 01.txt',
             'bnpr-pub@{domain}'.format(domain=self.config['domain']))
         self.assertIsNotNone(res)
-        print(res['id'], pretty(json.loads(res['params'])))
+        saveDump(json.loads(res['params']))
 
 if __name__ == '__main__':
     unittest.main()
