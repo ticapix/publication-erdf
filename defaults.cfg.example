@@ -1,0 +1,6 @@
+[MAILGUN]
+SMTP_SERVER=smtp.mailgun.org
+SMTP_USERNAME=postmaster@<domain>
+SMTP_PASSWORD=xxx
+API_URL=https://api.mailgun.net/v3/<domain>
+API_KEY=key-xxxx
