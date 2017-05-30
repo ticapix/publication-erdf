@@ -87,25 +87,27 @@ class ForwardEmailAndStoreTest(BaseTest):
 
     # @unittest.skip
     def test_no_arg(self):
-        res = self.forwardAndRetrieve('email erdf 01 les forges.txt',
-            'bnpr-pub@{domain}'.format(domain=self.config['domain']))
+        email_to = 'bnpr-pub@{domain}'.format(domain=self.config['domain'])
+        filename = 'email erdf 01 les forges.txt'
+        res = self.forwardAndRetrieve(filename, email_to)
         self.assertIsNotNone(res)
-        saveDump(json.loads(res['params']))
+        saveDump({'recipient': email_to, 'message': filename, 'params': res})
 
     # @unittest.skip
     def test_one_arg(self):
-        res = self.forwardAndRetrieve('email erdf 01 les forges.txt',
-            'bnpr-pub+cap=400@{domain}'.format(domain=self.config['domain']))
+        email_to = 'bnpr-pub+cap=400@{domain}'.format(domain=self.config['domain'])
+        filename = 'email erdf 01 les forges.txt'
+        res = self.forwardAndRetrieve(filename, email_to)
         self.assertIsNotNone(res)
-        print(res['id'])
-        saveDump(json.loads(res['params']))
+        saveDump({'recipient': email_to, 'message': filename, 'params': res})
 
     # @unittest.skip
     def test_many_args(self):
-        res = self.forwardAndRetrieve('email erdf 02 m2m.txt',
-            'bnpr-pub+cap=400|graph=0|csv=0@{domain}'.format(domain=self.config['domain']))
+        email_to = 'bnpr-pub+cap=400|graph=0|csv=0@{domain}'.format(domain=self.config['domain'])
+        filename = 'email erdf 02 m2m.txt'
+        res = self.forwardAndRetrieve(filename, email_to)
         self.assertIsNotNone(res)
-        saveDump(json.loads(res['params']))
+        saveDump({'recipient': email_to, 'message': filename, 'params': res})
 
 class SendEmailAndStoreTest(BaseTest):
     def createMessage(self, filenames, email_body, email_to):
@@ -143,24 +145,30 @@ class SendEmailAndStoreTest(BaseTest):
 
     # @unittest.skip
     def test_no_attachment_no_arg(self):
-        res = self.sendAndRetrieve([], 'body 01.txt',
-            'bnpr-pub@{domain}'.format(domain=self.config['domain']))
+        files = []
+        email_body = 'body 01.txt'
+        email_to = 'bnpr-pub@{domain}'.format(domain=self.config['domain'])
+        res = self.sendAndRetrieve(files, email_body, email_to)
         self.assertIsNotNone(res)
-        saveDump(json.loads(res['params']))
+        saveDump({'recipient': email_to, 'files': files, 'email_body': email_body, 'params': res})
 
     # @unittest.skip
     def test_one_attachment_many_args(self):
-        res = self.sendAndRetrieve(['extract01.zip'], 'body 01.txt',
-            'bnpr-pub+cap=400|graph=0|csv=0@{domain}'.format(domain=self.config['domain']))
+        files = ['extract01.zip']
+        email_body = 'body 01.txt'
+        email_to = 'bnpr-pub+cap=400|graph=0|csv=0@{domain}'.format(domain=self.config['domain'])
+        res = self.sendAndRetrieve(files, email_body, email_to)
         self.assertIsNotNone(res)
-        saveDump(json.loads(res['params']))
+        saveDump({'recipient': email_to, 'files': files, 'email_body': email_body, 'params': res})
 
     # @unittest.skip
     def test_many_attachments_no_arg(self):
-        res = self.sendAndRetrieve(['extract01.zip', 'extract02.zip'], 'body 01.txt',
-            'bnpr-pub@{domain}'.format(domain=self.config['domain']))
+        files = ['extract01.zip', 'extract02.zip']
+        email_body = 'body 01.txt'
+        email_to = 'bnpr-pub@{domain}'.format(domain=self.config['domain'])
+        res = self.sendAndRetrieve(files, email_body, email_to)
         self.assertIsNotNone(res)
-        saveDump(json.loads(res['params']))
+        saveDump({'recipient': email_to, 'files': files, 'email_body': email_body, 'params': res})
 
 if __name__ == '__main__':
     unittest.main()
