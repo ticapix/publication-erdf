@@ -1,4 +1,4 @@
-import os
+import json
 import requests
 
 class PostBinMailgun(object):
@@ -17,7 +17,7 @@ class PostBinMailgun(object):
 		messages = filter(lambda m: m['id'] not in self.ids, messages)
 		if len(messages):
 			self.ids.append(messages[0]['id'])
-			return messages[0]['params']
+			return json.loads(messages[0]['params'])
 		return None
 
 

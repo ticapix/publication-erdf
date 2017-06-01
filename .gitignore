@@ -102,3 +102,4 @@ ENV/
 
 #mine
 defaults.cfg
+test/stub/

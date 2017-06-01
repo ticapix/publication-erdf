@@ -3,25 +3,14 @@ import os
 import unittest
 import json
 
-os.sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 
-from trigger_parsing import run
 
 class ParseMessageTest(unittest.TestCase):
     pass
 
 def test_generator(stub):
     def test(self):
-        print(stub['recipient'])
-        print(stub['params'])
-        message = json.loads(stub['params'])
-        run.parse(message)
-        options = run.getEmailOptions(message)
-        print(options)
-        print(message['attachments'])
-        files = list(run.getEmailAttachment(message))
-        print(files)
-        # self.assertEqual(a,b)
+
     return test
 
 

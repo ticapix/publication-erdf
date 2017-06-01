@@ -10,10 +10,17 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 import mimetypes
 
-os.sys.path.append(os.path.realpath(os.environ['PACKAGES_DIR']))
-
-import requests
 from postbin import PostBin
+
+os.sys.path.append(os.path.realpath(os.environ['PACKAGES_DIR']))
+import requests
+
+# os.sys.path.append(os.path.realpath(os.environ['PACKAGES_DEV_DIR']))
+# import requests_cache
+# requests_cache.install_cache('requests_cache')
+
+os.sys.path.append(os.path.realpath(os.path.join(os.environ['PACKAGES_DIR'], '..')))
+from trigger_parsing import run
 
 def saveDump(obj):
     stub_path = os.environ['STUB_DIR']
@@ -59,6 +66,7 @@ class BaseTest(unittest.TestCase):
     def setUpClass(cls):
         cls.config = cls.readConfig()
         print('read config', cls.config)
+        os.environ['MG_API_KEY'] = cls.config['api_key']
         cls.postbin = PostBin().create()
         print('new postbin created', cls.postbin.url)
         cls.route = cls.createRoute('bnpr-pub(\+.*)?@{domain}'.format(domain=cls.config['domain']))
@@ -85,7 +93,7 @@ class ForwardEmailAndStoreTest(BaseTest):
             time.sleep(1)
         return None
 
-    # @unittest.skip
+    @unittest.skip
     def test_no_arg(self):
         email_to = 'bnpr-pub@{domain}'.format(domain=self.config['domain'])
         filename = 'email erdf 01 les forges.txt'
@@ -93,7 +101,7 @@ class ForwardEmailAndStoreTest(BaseTest):
         self.assertIsNotNone(res)
         saveDump({'recipient': email_to, 'message': filename, 'params': res})
 
-    # @unittest.skip
+    @unittest.skip
     def test_one_arg(self):
         email_to = 'bnpr-pub+cap=400@{domain}'.format(domain=self.config['domain'])
         filename = 'email erdf 01 les forges.txt'
@@ -101,7 +109,7 @@ class ForwardEmailAndStoreTest(BaseTest):
         self.assertIsNotNone(res)
         saveDump({'recipient': email_to, 'message': filename, 'params': res})
 
-    # @unittest.skip
+    @unittest.skip
     def test_many_args(self):
         email_to = 'bnpr-pub+cap=400|graph=0|csv=0@{domain}'.format(domain=self.config['domain'])
         filename = 'email erdf 02 m2m.txt'
@@ -148,11 +156,17 @@ class SendEmailAndStoreTest(BaseTest):
         files = []
         email_body = 'body 01.txt'
         email_to = 'bnpr-pub@{domain}'.format(domain=self.config['domain'])
-        res = self.sendAndRetrieve(files, email_body, email_to)
-        self.assertIsNotNone(res)
-        saveDump({'recipient': email_to, 'files': files, 'email_body': email_body, 'params': res})
+        message = self.sendAndRetrieve(files, email_body, email_to)
+        self.assertIsNotNone(message)
+        options = run.getEmailOptions(message)
+        self.assertEqual(len(options.keys()), 0)
+        self.assertNotIn('attachments', message)
+        html = run.parse(message)
+        print(html)
+        # self.assertEqual(a,b)
 
-    # @unittest.skip
+
+    @unittest.skip
     def test_one_attachment_many_args(self):
         files = ['extract01.zip']
         email_body = 'body 01.txt'
@@ -161,7 +175,7 @@ class SendEmailAndStoreTest(BaseTest):
         self.assertIsNotNone(res)
         saveDump({'recipient': email_to, 'files': files, 'email_body': email_body, 'params': res})
 
-    # @unittest.skip
+    @unittest.skip
     def test_many_attachments_no_arg(self):
         files = ['extract01.zip', 'extract02.zip']
         email_body = 'body 01.txt'

@@ -5,7 +5,9 @@ import re
 class Trace(object):
 	Entry = namedtuple('Raw', ['datetime', 'values'])
 
-	def __init__(self, fd):
+	def __init__(self, filename, fd, options):
+		self.filename = filename
+		self.options = options
 		self.trace = []
 		for line in fd:
 			tokens = re.split('\s+', line.decode('utf-8').strip())
@@ -15,7 +17,6 @@ class Trace(object):
 				)
 			entry = Entry(ts, list(map(int, tokens[2:])))
 			trace.append(entry)
-
 
 class Extract(object):
 	def __init__(self, filename):
@@ -30,7 +31,7 @@ class Extract(object):
 				if member.filename == 'extract.log':
 					self.description = zipfd.read(member).decode('iso-8859-1')
 
-	def getTrace(member):
+	def getTrace(member, options={}):
 		with zipfile.ZipFile(self.filename, 'r') as fd:
-			trace = Trace(fd.open(member, 'r'))
+			trace = Trace(member.filename, fd.open(member, 'r'), options)
 		return trace
